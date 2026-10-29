@@ -33,22 +33,22 @@ async def on_ready():
     channel = client.get_channel(CHANNEL_ID)
     
     if not channel:
-        print("指定されたチャンネルが見つかりませんでした。CHANNEL_IDを確認してください。")
+        print("指定されたチャンネルが見つかりませんでした。")
         await client.close()
         return
 
-    # 直近5分（＋余裕をもって7分前まで）のメッセージを取得
+    # 直近7分前のメッセージを取得
     now = datetime.now(timezone.utc)
     after_time = now - timedelta(minutes=7)
 
-    # 既にスプレッドシートにある「メッセージID」を取得して重複記録を防止
-    existing_ids = sheet.col_values(5) # 5列目をID管理用に使う
+    # F列（6列目）をメッセージID管理用に使用
+    existing_ids = sheet.col_values(6)
 
     async for msg in channel.history(after=after_time, oldest_first=True):
         if msg.author.bot:
             continue
         
-        # "!rec 練習内容 回数" の形式かチェック
+        # "!rec" から始まるコマンドを処理
         if msg.content.startswith("!rec"):
             parts = msg.content.split()
             if len(parts) >= 3:
@@ -56,14 +56,26 @@ async def on_ready():
                 count = parts[2]
                 msg_id_str = str(msg.id)
 
-                # 未記録のメッセージのみ書き込み
+                # 未記録のメッセージのみ処理
                 if msg_id_str not in existing_ids:
                     jst_time = msg.created_at.astimezone(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M")
-                    user_name = msg.author.display_name
+                    user_id = str(msg.author.id)
+                    display_name = msg.author.display_name
                     
-                    # A列:日時, B列:名前, C列:メニュー, D列:回数, E列:メッセージID
-                    sheet.append_row([jst_time, user_name, menu, count, msg_id_str])
-                    print(f"記録追加: {user_name} - {menu} {count}")
+                    # 見出しに合わせた順番で書き込み
+                    # A:日付 / B:ユーザーID / C:表示名 / D:メニュー名 / E:回数 / F:メッセージID
+                    sheet.append_row([jst_time, user_id, display_name, menu, count, msg_id_str])
+                    print(f"記録追加: {display_name} - {menu} {count}")
+
+                    # --- Discordへの完了通知機能 ---
+                    # 1. 投稿されたメッセージに「✅」リアクションを付ける
+                    try:
+                        await msg.add_reaction("✅")
+                    except Exception as e:
+                        print(f"リアクション追加失敗: {e}")
+
+                    # 2. ぶーとくんが完了メッセージをチャンネルに投稿（スレッド返信）
+                    await msg.reply(f"【記録完了】{display_name} さんの 「{menu}: {count}」 を記録したよ！")
 
     print("処理完了。終了します。")
     await client.close()
