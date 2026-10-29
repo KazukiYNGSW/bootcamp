@@ -2,19 +2,19 @@ name: Fortnite Rec Bot Cron
 
 on:
   schedule:
-    # 5分ごとに実行（GitHubの仕様上、多少前後することがあります）
+    # 5分ごとに実行
     - cron: '*/5 * * * *'
-  workflow_dispatch: # GitHubの画面から手動で実行するボタンも有効化
+  workflow_dispatch: # 手動実行ボタン
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     steps:
       - name: リポジトリのチェックアウト
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Pythonのセットアップ
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
