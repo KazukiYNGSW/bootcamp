@@ -61,8 +61,8 @@ async def on_ready():
                     display_name = msg.author.display_name
                     
                     # 見出しに合わせた順番で書き込み
-                    # A:日付 / B:ユーザーID / C:表示名 / D:メニュー名 / E:回数 / F:メッセージID
                     sheet.append_row([jst_time, user_id, display_name, menu, count, msg_id_str])
+                    existing_ids.append(msg_id_str) # ★ここを追加！メモリ上のリストも即時更新するだぶー
                     print(f"記録追加: {display_name} - {menu} {count}")
 
                     # --- Discordへの完了通知機能 ---
@@ -73,7 +73,11 @@ async def on_ready():
                         print(f"リアクション追加失敗: {e}")
 
                     # 2. ぶーとくんが完了メッセージをチャンネルに投稿（スレッド返信）
-                    await msg.reply(f"{display_name} ちゃん 報告ありがとうだぶー 「{menu}: {count}」 を記録したぶーよ！")
+                    try:
+                        await msg.reply(f"{display_name} ちゃん 報告ありがとうだぶー 「{menu}: {count}」 を記録したぶーよ！")
+                        print("返信送信成功だぶー！")
+                    except Exception as e:
+                        print(f"★返信送信失敗エラー: {e}")
 
     print("処理完了。終了します。")
     await client.close()
