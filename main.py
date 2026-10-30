@@ -73,7 +73,7 @@ async def on_ready():
                         print(f"リアクション追加失敗: {e}")
 
                     # 2. ぶーとくんが完了メッセージをチャンネルに投稿（スレッド返信）
-                    await msg.reply(f"【記録完了】{display_name} さんの 「{menu}: {count}」 を記録したよ！")
+                    await msg.reply(f"{display_name} ちゃん 報告ありがとうだぶー 「{menu}: {count}」 を記録したぶーよ！")
 
     print("処理完了。終了します。")
     await client.close()
