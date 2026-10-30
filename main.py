@@ -28,30 +28,38 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f"Logged in as {client.user}")
-    try:
-    channel = await client.fetch_channel(CHANNEL_ID)
-except Exception as e:
-    print(f"★チャンネル取得エラー: {e}")
-    await client.close()
-    return
+    print(f"読み込んだCHANNEL_IDの値: '{CHANNEL_ID}' (型: {type(CHANNEL_ID)})")
+
+    channel = None
     
+    # 1. まず fetch_channel（Direct API）で取得を試みるだぶー
+    try:
+        channel = await client.fetch_channel(CHANNEL_ID)
+        print(f"★fetch_channelで取得成功: {channel.name}")
+    except Exception as e:
+        print(f"★fetch_channel失敗エラー詳細: {e}")
+
+    # 2. ダメなら get_channel（Cache）も試すだぶー
     if not channel:
-        print("指定されたチャンネルが見つかりませんでした。")
+        channel = client.get_channel(CHANNEL_ID)
+        if channel:
+            print(f"★get_channelで取得成功: {channel.name}")
+
+    # どちらもダメだった場合
+    if not channel:
+        print("★指定されたチャンネルが見つかりませんでした。")
         await client.close()
         return
 
-    # 直近7分前のメッセージを取得
+    # --- ここからメッセージ取得＆記録処理 ---
     now = datetime.now(timezone.utc)
-    after_time = now - timedelta(minutes=7)
-
-    # F列（6列目）をメッセージID管理用に使用
+    after_time = now - timedelta(minutes=15)
     existing_ids = sheet.col_values(6)
 
     async for msg in channel.history(after=after_time, oldest_first=True):
         if msg.author.bot:
             continue
         
-        # "!rec" から始まるコマンドを処理
         if msg.content.startswith("!rec"):
             parts = msg.content.split()
             if len(parts) >= 3:
@@ -59,25 +67,20 @@ except Exception as e:
                 count = parts[2]
                 msg_id_str = str(msg.id)
 
-                # 未記録のメッセージのみ処理
                 if msg_id_str not in existing_ids:
                     jst_time = msg.created_at.astimezone(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M")
                     user_id = str(msg.author.id)
                     display_name = msg.author.display_name
                     
-                    # 見出しに合わせた順番で書き込み
                     sheet.append_row([jst_time, user_id, display_name, menu, count, msg_id_str])
-                    existing_ids.append(msg_id_str) # ★ここを追加！メモリ上のリストも即時更新するだぶー
+                    existing_ids.append(msg_id_str)
                     print(f"記録追加: {display_name} - {menu} {count}")
 
-                    # --- Discordへの完了通知機能 ---
-                    # 1. 投稿されたメッセージに「✅」リアクションを付ける
                     try:
                         await msg.add_reaction("✅")
                     except Exception as e:
                         print(f"リアクション追加失敗: {e}")
 
-                    # 2. ぶーとくんが完了メッセージをチャンネルに投稿（スレッド返信）
                     try:
                         await msg.reply(f"{display_name} ちゃん 報告ありがとうだぶー 「{menu}: {count}」 を記録したぶーよ！")
                         print("返信送信成功だぶー！")
