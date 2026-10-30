@@ -68,14 +68,18 @@ async def on_ready():
                     print(f"記録追加: {display_name} - {menu} {count}")
 
                     # --- Discordへの完了通知機能 ---
-                    # 1. 投稿されたメッセージに「✅」リアクションを付ける
-                    try:
-                        await msg.add_reaction("✅")
-                    except Exception as e:
-                        print(f"リアクション追加失敗: {e}")
+# 1. 投稿されたメッセージに「✅」リアクションを付ける
+try:
+    await msg.add_reaction("✅")
+except Exception as e:
+    print(f"リアクション追加失敗: {e}")
 
-                    # 2. ぶーとくんが完了メッセージをチャンネルに投稿（スレッド返信）
-                    await msg.channel.send(f"{display_name} ちゃん 報告ありがとうだぶー 「{menu}: {count}」 を記録したぶーよ！")
+# 2. ぶーとくんが完了メッセージをチャンネルに投稿
+try:
+    await msg.channel.send(f"{display_name} ちゃん 報告ありがとうだぶー 「{menu}: {count}」 を記録したぶーよ！")
+    print("メッセージ送信成功だぶー！")
+except Exception as e:
+    print(f"★メッセージ送信失敗エラー: {e}")
 
     print("処理完了。終了します。")
     await client.close()
