@@ -29,10 +29,11 @@ async def on_ready():
     print(f"Logged in as {client.user}")
     
     # チャンネル取得（fetch_channelで確実に取得）
+   print(f"読み込んだCHANNEL_ID: {CHANNEL_ID}")
     try:
         channel = await client.fetch_channel(CHANNEL_ID)
     except Exception as e:
-        print(f"チャンネル取得エラー: {e}")
+        print(f"★リアルなエラー内容: {type(e).__name__} - {e}")
         await client.close()
         return
 
