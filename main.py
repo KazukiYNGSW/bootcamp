@@ -47,29 +47,32 @@ async def on_ready():
         if msg.author.bot:
             continue
         
-        # 1. 全角英数字・記号を半角に統一（例: ！ｒｅｃ エイム ４５ ➔ !rec エイム 45）
+        # 1. メッセージ全体を半角正規化
         normalized_text = unicodedata.normalize('NFKC', msg.content).strip()
 
-        # "!rec" から始まるコマンドを処理（!REC など大文字も判定可能）
+        # "!rec" から始まるコマンドを処理
         if normalized_text.lower().startswith("!rec"):
             parts = normalized_text.split()
             if len(parts) >= 3:
-                menu = parts[1]
-                count_raw = parts[2]
+                # メニュー名も確実に半角変換（英数など）
+                menu = unicodedata.normalize('NFKC', parts[1])
+                
+                # 回数・数値部分を半角変換して数字のみ抽出
+                count_raw = unicodedata.normalize('NFKC', parts[2])
+                count = "".join([c for c in count_raw if c.isdigit()])
+                
+                if not count:
+                    continue # 数字がない場合はスキップ
+
                 msg_id_str = str(msg.id)
 
                 # 未記録のメッセージのみ処理
                 if msg_id_str not in existing_ids:
-                    # 数字以外の文字が含まれていた場合の安全策（数字のみ取り出す）
-                    count = "".join([c for c in count_raw if c.isdigit()])
-                    if not count:
-                        continue # 数字がない場合はスキップ
-
                     jst_time = msg.created_at.astimezone(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M")
                     user_id = str(msg.author.id)
                     display_name = msg.author.display_name
                     
-                    # 見出しに合わせた順番で書き込み
+                    # 半角化された count / menu でスプレッドシートに書き込み
                     sheet.append_row([jst_time, user_id, display_name, menu, count, msg_id_str])
                     existing_ids.append(msg_id_str)
                     print(f"記録追加: {display_name} - {menu} {count}")
