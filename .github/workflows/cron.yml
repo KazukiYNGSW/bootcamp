@@ -20,7 +20,7 @@ jobs:
 
       - name: 依存ライブラリのインストール
         run: |
-          pip install discord.py gspread oauth2client
+          pip install discord.py gspread oauth2client pandas matplotlib
 
       - name: Bot実行
         env:
