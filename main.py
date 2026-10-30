@@ -26,6 +26,13 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 
+def append_to_first_columns(row_data):
+    """A〜F列の最終行を正確に取得して追記する関数"""
+    col_a = sheet_log.col_values(1)
+    next_row = len(col_a) + 1
+    cell_range = f"A{next_row}:F{next_row}"
+    sheet_log.update(cell_range, [row_data])
+
 def get_menu_targets():
     """スプレッドシートの H列(メニュー) と I列(目標) を取得する関数"""
     targets = {}
@@ -42,11 +49,11 @@ def get_menu_targets():
     
     if not targets:
         try:
-            val = sheet_log.acell('H1').value
+            val = sheet_log.acell('I1').value
             if val and val.isdigit():
-                targets["エイム"] = int(val)
+                targets["PCT1"] = int(val)
         except:
-            targets["エイム"] = 4000
+            targets["PCT1"] = 500
             
     return targets
 
@@ -78,6 +85,7 @@ def generate_stats_text(menu_targets, target_user_name=None):
         if len(row) < 5:
             continue
         
+        # A〜E列から正しく取得
         display_name, menu, count_str = row[2], row[3], row[4]
         menu_clean = menu.strip()
 
@@ -134,7 +142,7 @@ async def on_ready():
         return
 
     menu_targets = get_menu_targets()
-    existing_ids = sheet_log.col_values(6)
+    existing_ids = sheet_log.col_values(6)  # F列（メッセージID）
 
     # 直近200件を取得
     messages = [m async for m in channel.history(limit=200)]
@@ -155,7 +163,6 @@ async def on_ready():
                     menu = parts[1]
                     count_raw = parts[2]
                     
-                    # マイナス記号（-）も正しく抽出するように修正
                     count_clean = "".join([c for i, c in enumerate(count_raw) if c.isdigit() or (i == 0 and c == '-')])
                     if not count_clean or count_clean == "-":
                         continue
@@ -166,8 +173,8 @@ async def on_ready():
                     user_id = str(msg.author.id)
                     display_name = msg.author.display_name
 
-                    # スプレッドシートへ保存（負の数も文字列/数値として記録）
-                    sheet_log.append_row([jst_time, user_id, display_name, menu, str(count), msg_id_str])
+                    # 必ず A〜F 列に正確に書き込み
+                    append_to_first_columns([jst_time, user_id, display_name, menu, str(count), msg_id_str])
                     existing_ids.append(msg_id_str)
 
                     try:
@@ -200,7 +207,7 @@ async def on_ready():
         all_report = generate_stats_text(menu_targets)
         await latest_stats_msg.reply(all_report)
         msg_id_str = str(latest_stats_msg.id)
-        sheet_log.append_row(["", "", "", "STATS_COMMAND", "", msg_id_str])
+        append_to_first_columns(["", "", "", "STATS_COMMAND", "", msg_id_str])
         existing_ids.append(msg_id_str)
         try:
             await latest_stats_msg.add_reaction("✅")
@@ -216,7 +223,7 @@ async def on_ready():
     if now_jst.hour == 12 and daily_sent_flag not in existing_ids:
         all_report = generate_stats_text(menu_targets)
         await channel.send(f"⏰ **【昼12時の定期進捗レポートだぶー！】**\n\n{all_report}")
-        sheet_log.append_row([now_jst.strftime("%Y-%m-%d %H:%M"), "", "BOT", "DAILY_STATS", "", daily_sent_flag])
+        append_to_first_columns([now_jst.strftime("%Y-%m-%d %H:%M"), "", "BOT", "DAILY_STATS", "", daily_sent_flag])
         print("昼12時の自動レポート送信完了")
 
     print("処理完了。終了します。")
