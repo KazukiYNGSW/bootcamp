@@ -2,7 +2,7 @@ name: Fortnite Rec Bot Cron
 
 on:
   schedule:
-    # 5分ごとに実行
+    # 5分ごとに実行（!rec/!statsの監視 ＆ 12時台の自動レポート出力）
     - cron: '*/5 * * * *'
   workflow_dispatch: # 手動実行ボタン
 
@@ -20,7 +20,7 @@ jobs:
 
       - name: 依存ライブラリのインストール
         run: |
-          pip install discord.py gspread oauth2client pandas matplotlib
+          pip install discord.py gspread oauth2client
 
       - name: Bot実行
         env:
