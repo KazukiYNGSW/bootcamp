@@ -2,8 +2,8 @@ name: Fortnite Rec Bot Cron
 
 on:
   schedule:
-    # 5分ごとに実行（!rec/!statsの監視 ＆ 12時台の自動レポート出力）
-    - cron: '*/5 * * * *'
+    # UTC 3:00 ＝ JST 12:00（毎日昼12時に1回だけ実行）
+    - cron: '0 3 * * *'
   workflow_dispatch: # 手動実行ボタン
 
 jobs:
