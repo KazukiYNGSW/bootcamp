@@ -9,8 +9,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 # --- 環境変数の取得 ---
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 GOOGLE_JSON = os.getenv("GOOGLE_JSON")
-# 巡回対象のDiscordチャンネルID（環境変数、または直接IDを入力）
-CHANNEL_ID = int(os.getenv("CHANNEL_ID", "0")) 
+CHANNEL_ID = int(os.getenv("CHANNEL_ID", "0"))
+SPREADSHEET_ID = "ここにスプレッドシートのID" # ←ご自身のIDを入力してください
 
 # --- Google Sheets セットアップ ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -18,8 +18,6 @@ creds_dict = json.loads(GOOGLE_JSON)
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 gc = gspread.authorize(creds)
 
-# スプレッドシート名
-SPREADSHEET_ID = "13TnkcrRnrvIQq6bQT339FQSMq7foSZo35neuz47ZhAs"
 sheet = gc.open_by_key(SPREADSHEET_ID).sheet1
 
 # --- Discord Client セットアップ ---
@@ -68,18 +66,14 @@ async def on_ready():
                     print(f"記録追加: {display_name} - {menu} {count}")
 
                     # --- Discordへの完了通知機能 ---
-# 1. 投稿されたメッセージに「✅」リアクションを付ける
-try:
-    await msg.add_reaction("✅")
-except Exception as e:
-    print(f"リアクション追加失敗: {e}")
+                    # 1. 投稿されたメッセージに「✅」リアクションを付ける
+                    try:
+                        await msg.add_reaction("✅")
+                    except Exception as e:
+                        print(f"リアクション追加失敗: {e}")
 
-# 2. ぶーとくんが完了メッセージをチャンネルに投稿
-try:
-    await msg.channel.send(f"{display_name} ちゃん 報告ありがとうだぶー 「{menu}: {count}」 を記録したぶーよ！")
-    print("メッセージ送信成功だぶー！")
-except Exception as e:
-    print(f"★メッセージ送信失敗エラー: {e}")
+                    # 2. ぶーとくんが完了メッセージをチャンネルに投稿（スレッド返信）
+                    await msg.reply(f"【記録完了】{display_name} さんの 「{menu}: {count}」 を記録したよ！")
 
     print("処理完了。終了します。")
     await client.close()
