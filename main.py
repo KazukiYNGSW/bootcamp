@@ -52,7 +52,7 @@ def get_menu_targets():
 
 def make_progress_bar(current, target, length=15):
     """100%の位置（ゴール）が視覚的にわかるプログレスバーを作成する関数（15分割）"""
-    if target <= 0:
+    if target <= 0 or current <= 0:
         return f"{'⬜' * length} 0%"
     
     percent = min(1.0, current / target)
@@ -96,7 +96,7 @@ def generate_stats_text(menu_targets, target_user_name=None):
         has_data = False
         for menu_name, target_count in menu_targets.items():
             user_cnt = menu_stats.get(menu_name, {}).get(target_user_name, 0)
-            if user_cnt > 0:
+            if user_cnt != 0:
                 has_data = True
                 bar = make_progress_bar(user_cnt, target_count, length=15)
                 achieve = " 🎉目標達成！" if user_cnt >= target_count else ""
@@ -154,16 +154,20 @@ async def on_ready():
                 if len(parts) >= 3:
                     menu = parts[1]
                     count_raw = parts[2]
-                    count = "".join([c for c in count_raw if c.isdigit()])
-                    if not count:
+                    
+                    # マイナス記号（-）も正しく抽出するように修正
+                    count_clean = "".join([c for i, c in enumerate(count_raw) if c.isdigit() or (i == 0 and c == '-')])
+                    if not count_clean or count_clean == "-":
                         continue
+
+                    count = int(count_clean)
 
                     jst_time = msg.created_at.astimezone(timezone(timedelta(hours=9))).strftime("%Y-%m-%d %H:%M")
                     user_id = str(msg.author.id)
                     display_name = msg.author.display_name
 
-                    # スプレッドシートへ保存
-                    sheet_log.append_row([jst_time, user_id, display_name, menu, count, msg_id_str])
+                    # スプレッドシートへ保存（負の数も文字列/数値として記録）
+                    sheet_log.append_row([jst_time, user_id, display_name, menu, str(count), msg_id_str])
                     existing_ids.append(msg_id_str)
 
                     try:
@@ -209,7 +213,6 @@ async def on_ready():
     today_str = now_jst.strftime("%Y-%m-%d")
     daily_sent_flag = f"DAILY_STATS_{today_str}"
 
-    # 12時台かつ、今日まだ自動送信していない場合にのみ全体レポートを出力
     if now_jst.hour == 12 and daily_sent_flag not in existing_ids:
         all_report = generate_stats_text(menu_targets)
         await channel.send(f"⏰ **【昼12時の定期進捗レポートだぶー！】**\n\n{all_report}")
