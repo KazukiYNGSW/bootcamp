@@ -85,7 +85,6 @@ def generate_stats_text(menu_targets, target_user_name=None):
         if len(row) < 5:
             continue
         
-        # A〜E列から正しく取得
         display_name, menu, count_str = row[2], row[3], row[4]
         menu_clean = menu.strip()
 
@@ -173,7 +172,6 @@ async def on_ready():
                     user_id = str(msg.author.id)
                     display_name = msg.author.display_name
 
-                    # 必ず A〜F 列に正確に書き込み
                     append_to_first_columns([jst_time, user_id, display_name, menu, str(count), msg_id_str])
                     existing_ids.append(msg_id_str)
 
@@ -182,7 +180,6 @@ async def on_ready():
                     except Exception as e:
                         print(f"!rec リアクション失敗: {e}")
 
-                    # 本人の個人スタッツを生成して返信
                     user_personal_stats = generate_stats_text(menu_targets, target_user_name=display_name)
                     reply_msg = (
                         f"{display_name} ちゃん 報告ありがとうだぶー！ 「{menu}: {count}」 を記録したぶーよ🐷\n\n"
@@ -202,7 +199,6 @@ async def on_ready():
                 latest_stats_msg = msg
                 break
 
-    # 手動 !stats があった場合のみ返信
     if latest_stats_msg:
         all_report = generate_stats_text(menu_targets)
         await latest_stats_msg.reply(all_report)
@@ -215,15 +211,19 @@ async def on_ready():
             print(f"!stats リアクション失敗: {e}")
         print("手動 !stats レポート送信完了")
 
-    # 3. 昼12時台（JST）の自動定時配信ロジック
+    # 3. 昼12時台（JST 12:00〜12:05）の自動定時配信ロジック（厳格化）
     now_jst = datetime.now(timezone(timedelta(hours=9)))
     today_str = now_jst.strftime("%Y-%m-%d")
     daily_sent_flag = f"DAILY_STATS_{today_str}"
 
-    if now_jst.hour == 12 and daily_sent_flag not in existing_ids:
+    # 12時0分〜12時5分かつ、本日未送信の場合のみ1回だけ実行
+    if now_jst.hour == 12 and now_jst.minute < 5 and daily_sent_flag not in existing_ids:
+        # 先にフラグを記録して連投を物理遮断
+        append_to_first_columns([now_jst.strftime("%Y-%m-%d %H:%M"), "", "BOT", "DAILY_STATS", "", daily_sent_flag])
+        existing_ids.append(daily_sent_flag)
+        
         all_report = generate_stats_text(menu_targets)
         await channel.send(f"⏰ **【昼12時の定期進捗レポートだぶー！】**\n\n{all_report}")
-        append_to_first_columns([now_jst.strftime("%Y-%m-%d %H:%M"), "", "BOT", "DAILY_STATS", "", daily_sent_flag])
         print("昼12時の自動レポート送信完了")
 
     print("処理完了。終了します。")
