@@ -9,7 +9,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 # --- 環境変数の取得 ---
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 GOOGLE_JSON = os.getenv("GOOGLE_JSON")
-CHANNEL_ID = int(os.getenv("CHANNEL_ID", "0"))
+CHANNEL_ID = 1565338856708903042
 SPREADSHEET_ID = "13TnkcrRnrvIQq6bQT339FQSMq7foSZo35neuz47ZhAs" # ←ご自身のIDを入力してください
 
 # --- Google Sheets セットアップ ---
