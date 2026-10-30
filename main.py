@@ -28,6 +28,7 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f"Logged in as {client.user}")
+    print("★バージョンテスト: ぶーとくん最新コードだぶー")  # ← この1行を追加！
     channel = client.get_channel(CHANNEL_ID)
     
     if not channel:
