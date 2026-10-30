@@ -28,7 +28,12 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f"Logged in as {client.user}")
-    channel = client.get_channel(CHANNEL_ID)
+    try:
+    channel = await client.fetch_channel(CHANNEL_ID)
+except Exception as e:
+    print(f"★チャンネル取得エラー: {e}")
+    await client.close()
+    return
     
     if not channel:
         print("指定されたチャンネルが見つかりませんでした。")
