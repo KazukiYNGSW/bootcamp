@@ -26,6 +26,12 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 
+def clean_display_name(name):
+    """'ぷんプン(ID:punpun29_yama)' などの文字列から '(' 以降をカットして綺麗にする関数"""
+    if not name:
+        return ""
+    return name.split('(')[0].strip()
+
 def append_to_first_columns(row_data):
     """A〜F列の最終行を正確に取得して追記する関数"""
     col_a = sheet_log.col_values(1)
