@@ -1,10 +1,7 @@
 name: Fortnite Rec Bot Cron
 
 on:
-  schedule:
-    # 1分ごとに起動リクエストを発行
-    - cron: '* * * * *'
-  workflow_dispatch: # 手動実行ボタン
+  workflow_dispatch: # GAS（API）や手動実行を受け取る
 
 jobs:
   run-bot:
