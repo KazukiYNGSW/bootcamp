@@ -1,0 +1,21 @@
+name: Fortnite Rec Bot Daily Stats
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-daily-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: pip install discord.py gspread oauth2client
+      - name: 定期レポート実行
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          GOOGLE_JSON: ${{ secrets.GOOGLE_JSON }}
+          CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+        run: python daily.py
