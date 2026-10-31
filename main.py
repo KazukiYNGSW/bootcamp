@@ -124,7 +124,7 @@ def generate_stats_text(menu_targets, target_user_name=None):
                 rank = medals[i] if i < len(medals) else "👤"
                 bar = make_progress_bar(cnt, target_count, length=15)
                 achieve = " 🎉達成！" if cnt >= target_count else ""
-                report_text += f"{rank} **{name}ちゃん** : {cnt} / {target_count}\n{bar}{achieve}\n"
+                report_text += f"{rank} **{name}** : {cnt} / {target_count}\n{bar}{achieve}\n"
         else:
             report_text += "まだ記録がないぶー！\n"
         report_text += "\n"
