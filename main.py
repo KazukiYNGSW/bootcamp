@@ -99,7 +99,7 @@ def generate_stats_text(menu_targets, target_user_name=None):
 
     # --- 個人スタッツ（!rec 報告時用）---
     if target_user_name:
-        report_text = f"📊 **{target_user_name} の現在の進捗だぶー！**\n"
+        report_text = f"📊 **{target_user_name}ちゃんの現在の進捗だぶー！**\n"
         has_data = False
         for menu_name, target_count in menu_targets.items():
             user_cnt = menu_stats.get(menu_name, {}).get(target_user_name, 0)
@@ -193,7 +193,7 @@ async def on_ready():
 
                 user_personal_stats = generate_stats_text(menu_targets, target_user_name=display_name)
                 reply_msg = (
-                    f"{display_name} 報告ありがとうだぶー！ 「{menu}: {count}」 を記録したぶーよ🐷\n\n"
+                    f"{display_name} ちゃん 報告ありがとうだぶー！ 「{menu}: {count}」 を記録したぶーよ🐷\n\n"
                     f"{user_personal_stats}"
                 )
                 await msg.reply(reply_msg)
