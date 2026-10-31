@@ -2,7 +2,7 @@ name: Fortnite Rec Bot Cron
 
 on:
   schedule:
-    # 1分ごとに実行（Publicリポジトリなら無制限・完全無料）
+    # 1分ごとに起動リクエストを発行
     - cron: '* * * * *'
   workflow_dispatch: # 手動実行ボタン
 
