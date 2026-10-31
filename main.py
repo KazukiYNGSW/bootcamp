@@ -191,7 +191,7 @@ async def on_ready():
                 except Exception as e:
                     print(f"!rec リアクション失敗: {e}")
 
-                user_personal_stats = generateStats_text(menu_targets, target_user_name=display_name)
+                user_personal_stats = generate_stats_text(menu_targets, target_user_name=display_name)
                 reply_msg = (
                     f"{display_name} ちゃん 報告ありがとうだぶー！ 「{menu}: {count}」 を記録したぶーよ🐷\n\n"
                     f"{user_personal_stats}"
