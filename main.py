@@ -231,7 +231,7 @@ async def on_ready():
         existing_ids.append(daily_sent_flag)
         
         all_report = generate_stats_text(menu_targets)
-        await channel.send(f"⏰ **【昼12時の定期進捗レポートだぶー！】**\n\n{all_report}")
+        await channel.send(f"⏰ **【定期進捗レポート】**\n\n{all_report}")
         print("定時/GAS起動進捗レポート送信完了")
 
     print("処理完了。終了します。")
