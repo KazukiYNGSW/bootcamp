@@ -99,7 +99,7 @@ def generate_stats_text(menu_targets, target_user_name=None):
 
     # --- 個人スタッツ（!rec 報告時用）---
     if target_user_name:
-        report_text = f"📊 **{target_user_name}ちゃんの現在の進捗だぶー！**\n"
+        report_text = f"📊 **{target_user_name} の現在の進捗だぶー！**\n"
         has_data = False
         for menu_name, target_count in menu_targets.items():
             user_cnt = menu_stats.get(menu_name, {}).get(target_user_name, 0)
@@ -124,7 +124,7 @@ def generate_stats_text(menu_targets, target_user_name=None):
                 rank = medals[i] if i < len(medals) else "👤"
                 bar = make_progress_bar(cnt, target_count, length=15)
                 achieve = " 🎉達成！" if cnt >= target_count else ""
-                report_text += f"{rank} **{name}ちゃん** : {cnt} / {target_count}\n{bar}{achieve}\n"
+                report_text += f"{rank} **{name}** : {cnt} / {target_count}\n{bar}{achieve}\n"
         else:
             report_text += "まだ記録がないぶー！\n"
         report_text += "\n"
@@ -193,7 +193,7 @@ async def on_ready():
 
                 user_personal_stats = generate_stats_text(menu_targets, target_user_name=display_name)
                 reply_msg = (
-                    f"{display_name} ちゃん 報告ありがとうだぶー！ 「{menu}: {count}」 を記録したぶーよ🐷\n\n"
+                    f"{display_name} 報告ありがとうだぶー！ 「{menu}: {count}」 を記録したぶーよ🐷\n\n"
                     f"{user_personal_stats}"
                 )
                 await msg.reply(reply_msg)
@@ -231,7 +231,7 @@ async def on_ready():
         existing_ids.append(daily_sent_flag)
         
         all_report = generate_stats_text(menu_targets)
-        await channel.send(f"⏰ **【昼12時の定期進捗レポートだぶー！】**\n\n{all_report}")
+        await channel.send(f"⏰ **【定期進捗レポート】**\n\n{all_report}")
         print("定時/GAS起動進捗レポート送信完了")
 
     print("処理完了。終了します。")
