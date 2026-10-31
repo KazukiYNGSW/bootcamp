@@ -27,4 +27,5 @@ jobs:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           GOOGLE_JSON: ${{ secrets.GOOGLE_JSON }}
           CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
         run: python main.py
