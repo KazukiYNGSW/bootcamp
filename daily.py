@@ -20,6 +20,12 @@ sheet_log = gc.open_by_key(SPREADSHEET_ID).sheet1
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
+def clean_display_name(name):
+    """'ぷんプン(ID:punpun29_yama)' などの文字列から '(' 以降をカットして綺麗にする関数"""
+    if not name:
+        return ""
+    return name.split('(')[0].strip()
+
 def make_progress_bar(current, target, length=15):
     if target <= 0 or current <= 0:
         return f"{'⬜' * length} 0%"
