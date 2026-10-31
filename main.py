@@ -222,11 +222,6 @@ async def on_ready():
             print(f"!stats リアクション失敗: {e}")
         print("手動 !stats レポート送信完了")
 
-    # 3. 定期配信レポート処理（GASから呼ばれたら即送信）
-    all_report = generate_stats_text(menu_targets)
-    await channel.send(f"⏰ **【定期進捗レポート】**\n\n{all_report}")
-    print("定時進捗レポート送信完了")
-
     print("処理完了。終了します。")
     await client.close()
 
