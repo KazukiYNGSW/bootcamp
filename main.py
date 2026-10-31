@@ -222,17 +222,17 @@ async def on_ready():
             print(f"!stats リアクション失敗: {e}")
         print("手動 !stats レポート送信完了")
 
-    # 3. 昼12時台（JST 12:00〜12:05）の自動定時配信ロジック
+    # 3. 定期配信・GAS起動時レポート処理（本日まだ未送信の場合に自動出力）
     today_str = now_jst.strftime("%Y-%m-%d")
     daily_sent_flag = f"DAILY_STATS_{today_str}"
 
-    if now_jst.hour == 12 and now_jst.minute < 5 and daily_sent_flag not in existing_ids:
+    if daily_sent_flag not in existing_ids:
         append_to_first_columns([now_jst.strftime("%Y-%m-%d %H:%M"), "", "BOT", "DAILY_STATS", "", daily_sent_flag])
         existing_ids.append(daily_sent_flag)
         
         all_report = generate_stats_text(menu_targets)
         await channel.send(f"⏰ **【昼12時の定期進捗レポートだぶー！】**\n\n{all_report}")
-        print("昼12時の自動レポート送信完了")
+        print("定時/GAS起動進捗レポート送信完了")
 
     print("処理完了。終了します。")
     await client.close()
